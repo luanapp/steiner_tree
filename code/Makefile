@@ -11,7 +11,7 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(call stein_module, $(notdir $<)) -c $< -o $@
+	$(CC) $(CFLAGS) $(call stein_module, $(notdir $<)) -DPRINT_LEVEL=3 -c $< -o $@
 
 clean:
 	$(RM) *.o *.E *~ $(TARGET)

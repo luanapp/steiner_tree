@@ -24,12 +24,17 @@ static const char _token[2] = " ";
 
 static char _nodes[] = "Nodes";
 static char _edges[] = "Edges";
+static char _terminals[] = "Terminals";
 static char _edge_prefix[] = "E";
+static char _terminal_prefix[] = "T";
 
 
 /**
  * set_field - Set the given field with the value retrieved from the file.
  * If the field was not found, the method returns an error number (!= 0).
+ *
+ * @file: file with the field to retrieve, with stream position in the begining
+ * of the line.
  * @field_name: field to search as the first word in the line.
  * @member_to_set: address to the field which will be set with the retrieved
  * value.
@@ -49,12 +54,18 @@ int set_field(FILE *file, char *field_name, int *member_to_set) {
 }
 
 /**
- * Read the next n=stein->n_edges lines of the file getting the edges weights.
+ * set_matrix_values - Read the next n=stein->n_edges lines of 
+ * the file getting the edges weights.
  * Each line with the edge information has the following format:
  * "E V1 V2 W\n" where "E" is a prefix, V1 and V2
  * are the vertex of the edge and W is the edge weight.
+ *
+ * @file: file with the field to retrieve, with stream position in the begining
+ * of the line.
+ * @prefix: prefix to be checked as the first character in the line.
+ * @stein: current stein structure.
  * */
-int set_matrix_value(FILE *file, char *prefix, stein_t *stein) {
+int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
 	int i,j,w,x;
 
 	for(x = 0; x < stein->n_edges; x++) {
@@ -65,6 +76,9 @@ int set_matrix_value(FILE *file, char *prefix, stein_t *stein) {
 		if(strcmp(_str_token, prefix) != 0)
 			return EUNEXPECTED_FILE_FORMAT;
 
+		 /* The vertex indexes in the files are numbers from 1 to V 
+		  * (number of vertexes), therefore the indexes are decreased by 1.
+		 * */
 		_str_token = strtok(NULL, _token);
 		i = atoi(_str_token) - 1;
 
@@ -78,9 +92,6 @@ int set_matrix_value(FILE *file, char *prefix, stein_t *stein) {
 		 * As the graph is complete and undirected, the weight of (i, j)
 		 * is the same as the weight of (j, i). And the edges are only
 		 * once in the file.
-		 * And the vertex indexes in the files are numbers from 1 to V
-		 * (number of vertexes), therefore the indexes are decreased by
-		 * 1.
 		 */
 		stein->adj_m[i][j] = w;
 		stein->adj_m[j][i] = w;
@@ -88,6 +99,34 @@ int set_matrix_value(FILE *file, char *prefix, stein_t *stein) {
 				stein->adj_m[i][j]);
 	}
 
+	return 0;
+}
+
+
+/**
+ * set_terminals - Read stein->n_terminals lines to get all the graph terminals.
+ *
+ * @file: file with the field to retrieve, with stream position in the begining
+ * of the line.
+ * @prefix: prefix to be checked as the first character in the line.
+ * @stein: current stein structure.
+ * */
+int set_terminals(FILE *file, char *prefix, stein_t *stein) {
+	int i, v;
+
+	for(i = 0; i < stein->n_terminals; i++) {
+		if(fgets(buffer, BUFFER_SIZE, file) == NULL)
+			return EUNEXPECTED_FILE_FORMAT;
+
+		_str_token = strtok(buffer, _token);
+		if(strcmp(_str_token, prefix) != 0)
+			return EUNEXPECTED_FILE_FORMAT;
+
+		_str_token = strtok(NULL, _token);
+		v = atoi(_str_token);
+
+		pr_debug("Terminal %d added.\n", v);
+	}
 	return 0;
 }
 
@@ -132,7 +171,29 @@ stein_t *get_stein_from_file(char *filename) {
 	 * the following format: "E V1 V2 W\n" where "E" is a prefix, V1 and V2
 	 * are the vertex of the edge and W is the edge weight.
 	 * */
-	if(set_matrix_value(file, _edge_prefix, stein_data) != 0) {
+	if(set_matrix_values(file, _edge_prefix, stein_data) != 0) {
+		ERRNO = EUNEXPECTED_FILE_FORMAT;
+		return NULL;
+	}
+
+	/* There is an empty line afer getting the edges
+	 * */
+	fgets(buffer, BUFFER_SIZE, file);
+
+
+	/* Retrieve and check the number of terminals given in the file.
+	 * */
+	if(set_field(file, _terminals, &(stein_data->n_terminals)) != 0) {
+		ERRNO = EINVALID_FILE_FORMAT;
+		return NULL;
+	}
+	pr_debug("Fields changed: n_terminals=%d.\n", stein_data->n_terminals);
+
+
+	/* The next stein_data->n_terminals lines contains the edges that are
+	 * terminals in the stein tree.
+	 * */
+	if(set_terminals(file, _terminal_prefix, stein_data) != 0) {
 		ERRNO = EUNEXPECTED_FILE_FORMAT;
 		return NULL;
 	}
