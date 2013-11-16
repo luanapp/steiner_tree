@@ -98,6 +98,11 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
 		_terminal_list_t *selected_v = NULL, *selected_u = NULL;
 		solution_t *s;
 
+
+		/**
+		 * For each vertex added in the MST, it will be searched the
+		 * vertex with minimum cost to be added in the MST.
+		 * */
 		list_for_each_entry(terminal_in, t_head, list) {
 			v = terminal_in->v;
 
@@ -125,9 +130,6 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
 		if(selected_v != selected_u && min_cost != UINT_MAX) {
 			struct list_head *u_tmp = NULL;
 
-			pr_debug("Selected edge:(%u, %u), w=%u.\n",
-					selected_v->v + 1u, selected_u->v + 1u,
-					min_cost);
 
 			/* Add the selected edge to the solution */
 			s = alloc_solution();
@@ -140,6 +142,10 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
 			u_tmp = &selected_u->list;
 			list_del(u_tmp);
 			list_add_tail(u_tmp, t_head);
+
+			pr_debug("Selected edge:(%u, %u), w=%u.\n",
+					selected_v->v + 1u, selected_u->v + 1u,
+					min_cost);
 		}
 	}
 
