@@ -1,0 +1,13 @@
+Nodes 4
+Edges 6
+E 1 2 298
+E 1 3 285
+E 1 4 378
+E 2 3 1001
+E 2 4 298
+E 3 4 567
+
+Terminals 3
+T 1
+T 2
+T 3

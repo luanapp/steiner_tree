@@ -5,6 +5,8 @@
  *
  * */
 
+#include <limits.h>
+
 #include "include/types.h"
 #include "include/print.h"
 
@@ -31,15 +33,34 @@ void alloc_adj_m() {
 	if(THIS_STEIN->n_nodes > 0 && THIS_STEIN->n_edges > 0) {
 
 		/* Allocate memory for the lines */
-		THIS_STEIN->adj_m = malloc(sizeof(**(THIS_STEIN->adj_m)) *
+		THIS_STEIN->adj_m = malloc(sizeof(*(THIS_STEIN->adj_m)) *
 				THIS_STEIN->n_nodes);
 
 		/* Allocate memory for the columns */
 		for(i = 0; i < THIS_STEIN->n_nodes; i++) {
 			THIS_STEIN->adj_m[i] =
-				malloc(sizeof(*(THIS_STEIN->adj_m)) *
+				malloc(sizeof(**(THIS_STEIN->adj_m)) *
 						THIS_STEIN->n_nodes);
+
+			/* Initialize the [i][i] values with a high value,
+			 * since there is no edge starting and ending in the
+			 * same vertex.
+			 * */
+			THIS_STEIN->adj_m[i][i] = UINT_MAX;
 		}
+	}
+}
+
+
+/**
+ * alloc_terminals - Allocate memory for the terminals vector acording 
+ * to the value of n_terminals.
+ * */
+void alloc_terminals() {
+	if(THIS_STEIN->n_terminals > 0) {
+		THIS_STEIN->terminals =
+			malloc(sizeof(*(THIS_STEIN->terminals)) *
+				THIS_STEIN->n_terminals);
 	}
 }
 
@@ -64,4 +85,33 @@ void free_stein() {
 		}
 		free(THIS_STEIN->adj_m);
 	}
+
+	if(THIS_STEIN->terminals != NULL)
+		free(THIS_STEIN->terminals);
 }
+
+
+
+/**
+ * alloc_solution - Allocate memory for the solution_t and its edge.
+ * */
+solution_t *alloc_solution() {
+	solution_t *s;
+
+	s = malloc(sizeof(solution_t));
+	s->edge = malloc(sizeof(edge_t));
+	return s;
+}
+
+
+/**
+ * free_solution - Deallocate the memory of the given solution_t and its edge.
+ *
+ * @solution: solution_t memory to free.
+ * */
+void free_solution(solution_t *solution) {
+	free(solution->edge);
+	free(solution);
+}
+
+

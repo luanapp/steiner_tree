@@ -10,7 +10,7 @@
 
 #ifndef _FILE_READER_H_
 #define _FILE_READER_H_
-#endif
+
 
 #include <stdlib.h>
 
@@ -25,3 +25,6 @@
  * */
 stein_t *get_stein_from_file(char *);
 
+
+
+#endif

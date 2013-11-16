@@ -8,6 +8,8 @@
  * */
 
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 #include "include/errno.h"
 #include "include/print.h"
@@ -30,6 +32,27 @@ static char _terminal_prefix[] = "T";
 
 
 /**
+ * strtous - Converts the nptr string into a unsigned int,
+ * using the function strtoul with error verification during the convertion.
+ *
+ * @nptr: String to convert
+ * @endptr: Pointer to a pointer to the address of the first invalid character.
+ * @base: Convertion base, e.g, decimal(10), hexadecimal(16), etc.
+ * */
+unsigned int strtous(char *nptr, char **endptr, int base) {
+	unsigned long tmp_value;
+	unsigned int value = UINT_MAX;
+
+	errno = 0;
+	tmp_value = strtoul(nptr, endptr, base);
+	if(errno == 0 && tmp_value <= UINT_MAX) {
+		value = (unsigned int) tmp_value;
+	}
+	check_error();
+	return value;
+}
+
+/**
  * set_field - Set the given field with the value retrieved from the file.
  * If the field was not found, the method returns an error number (!= 0).
  *
@@ -39,7 +62,7 @@ static char _terminal_prefix[] = "T";
  * @member_to_set: address to the field which will be set with the retrieved
  * value.
  */
-int set_field(FILE *file, char *field_name, int *member_to_set) {
+int set_field(FILE *file, char *field_name, unsigned int *member_to_set) {
 
 	if(fgets(buffer, BUFFER_SIZE, file) == NULL)
 		return EINVALID_FILE_FORMAT;
@@ -48,8 +71,9 @@ int set_field(FILE *file, char *field_name, int *member_to_set) {
 	if(strcmp(_str_token, field_name) != 0)
 		return EINVALID_FILE_FORMAT;
 
+	errno = 0;
 	_str_token = strtok(NULL, _token);
-	*member_to_set = atoi(_str_token);
+	*member_to_set = strtous(_str_token, NULL, 0);
 	return 0;
 }
 
@@ -66,7 +90,7 @@ int set_field(FILE *file, char *field_name, int *member_to_set) {
  * @stein: current stein structure.
  * */
 int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
-	int i,j,w,x;
+	unsigned int i, j, w, x;
 
 	for(x = 0; x < stein->n_edges; x++) {
 		if(fgets(buffer, BUFFER_SIZE, file) == NULL)
@@ -80,13 +104,13 @@ int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
 		  * (number of vertexes), therefore the indexes are decreased by 1.
 		 * */
 		_str_token = strtok(NULL, _token);
-		i = atoi(_str_token) - 1;
+		i = strtous(_str_token, NULL, 0) - 1u;
 
 		_str_token = strtok(NULL, _token);
-		j = atoi(_str_token) - 1;
+		j = strtous(_str_token, NULL, 0) - 1u;
 
 		_str_token = strtok(NULL, _token);
-		w = atoi(_str_token);
+		w = strtous(_str_token, NULL, 0);
 
 		/**
 		 * As the graph is complete and undirected, the weight of (i, j)
@@ -95,7 +119,7 @@ int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
 		 */
 		stein->adj_m[i][j] = w;
 		stein->adj_m[j][i] = w;
-		pr_debug("Edge(%d,%d) weight value: %d.\n", i + 1, j + 1,
+		pr_debug("Edge(%d,%d) weight value: %u.\n", i + 1, j + 1,
 				stein->adj_m[i][j]);
 	}
 
@@ -112,7 +136,10 @@ int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
  * @stein: current stein structure.
  * */
 int set_terminals(FILE *file, char *prefix, stein_t *stein) {
-	int i, v;
+	unsigned int i, v;
+
+	/* Allocate memory for the terminals */
+	alloc_terminals();
 
 	for(i = 0; i < stein->n_terminals; i++) {
 		if(fgets(buffer, BUFFER_SIZE, file) == NULL)
@@ -123,8 +150,12 @@ int set_terminals(FILE *file, char *prefix, stein_t *stein) {
 			return EUNEXPECTED_FILE_FORMAT;
 
 		_str_token = strtok(NULL, _token);
-		v = atoi(_str_token);
+		v = strtous(_str_token, NULL, 0);
 
+		 /* The vertex indexes in the files are numbers from 1 to V 
+		  * (number of vertexes), therefore the indexes are decreased by 1.
+		 * */
+		stein->terminals[i] = v - 1u;
 		pr_debug("Terminal %d added.\n", v);
 	}
 	return 0;
@@ -139,6 +170,7 @@ int set_terminals(FILE *file, char *prefix, stein_t *stein) {
 stein_t *get_stein_from_file(char *filename) {
 	FILE *file;
 	stein_t *stein_data;
+	char *chk_eof;
 
 	if(!(file = fopen(filename, "r+"))) {
 		ERRNO = EFILE_NOT_FOUND;
@@ -178,7 +210,9 @@ stein_t *get_stein_from_file(char *filename) {
 
 	/* There is an empty line afer getting the edges
 	 * */
-	fgets(buffer, BUFFER_SIZE, file);
+	chk_eof = fgets(buffer, BUFFER_SIZE, file);
+	if(chk_eof == NULL)
+		pr_error("\n\nThere was an error while reading the file. check_eof=%s.\n\n", chk_eof);
 
 
 	/* Retrieve and check the number of terminals given in the file.
