@@ -20,5 +20,8 @@
 # Makefile executable (Linux)
 stein
 
+# Vim swap files
+*.swp
+
 # Cscope files
 cscope.*
