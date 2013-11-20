@@ -1,6 +1,6 @@
 
 TARGET=stein
-SRC=types.c file_reader.c mst.c main.c
+SRC=types.c file_reader.c mst.c population.c main.c
 OBJ=$(SRC:.c=.o)
 CFLAGS=-g -O2 -Wall -pedantic -pthread
 stein_module=$(if $(findstring $(1), types.c), -DSTEIN_MODULE,)

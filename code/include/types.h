@@ -31,21 +31,20 @@ struct stein {
 	/* Graph adjacency matrix */
 	unsigned int **adj_m;
 };
-typedef struct stein stein_t;
-
-
-typedef struct edge {
-	unsigned int v[2] __attribute__ ((packed));
-} edge_t;
 
 
 /* Solution list for the problem. It will be used to build a initial population
  * based in a common ancestor: a MST solution for the terminals.
  * */
-typedef struct solution {
+struct solution {
 	struct list_head list;
-	edge_t *edge;
-} solution_t;
+	unsigned int edge[2] __attribute__ ((packed));
+};
+
+struct population {
+	struct list_head solution;
+	struct list_head list;
+};
 
 
 
@@ -54,7 +53,7 @@ typedef struct solution {
  *
  * */
 #ifdef STEIN_MODULE
-extern stein_t __current;
+extern struct stein __current;
 #define THIS_STEIN (&__current)
 #endif
 
@@ -63,7 +62,7 @@ extern stein_t __current;
  * Return the current stein structure without requiring the -DSTEIN_MODULE flag
  * at compile time.
  *  */
-stein_t *get_stein();
+struct stein *get_stein();
 
 
 /**
@@ -89,15 +88,24 @@ void free_stein();
 /**
  * alloc_solution - Allocate memory for the solution and its edge.
  * */
-solution_t *alloc_solution();
+struct solution *alloc_solution();
 
 
 /**
  * free_solution - Deallocate the memory of the given solution_t and its edge.
  *
- * @solution: solution_t memory to free.
+ * @s: solution_t memory to free.
  * */
-void free_solution(solution_t *solution);
+void free_solution(struct solution *s);
 
+
+/**
+ * copy_solution - Use this function to create a copy of an entire solution
+ * list. It will walk down the solution list allocating a new memory chunk for
+ * every solution.
+ *
+ * @source: Solution list head to be copied.
+ * */
+struct list_head *copy_solution(struct list_head *source);
 
 #endif /* _TYPES_H */

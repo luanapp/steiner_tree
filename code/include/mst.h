@@ -20,6 +20,6 @@
  *
  * @stein: stein structure with the graph representation.
  * */
-struct list_head *retrieve_mst(stein_t *stein);
+struct list_head *retrieve_mst(struct stein *stein);
 
 #endif /* _MST_H_ */

@@ -8,8 +8,8 @@
 #include <limits.h>
 
 #include "include/mst.h"
-#include "include/errno.h"
 #include "include/print.h"
+#include "include/errno.h"
 
 static LIST_HEAD(terminal_head);
 static LIST_HEAD(terminal_solution_head);
@@ -19,10 +19,10 @@ static LIST_HEAD(solution_head);
  * This is a temporary structure to store the terminals not yet added to the
  * MST.
  * */
-typedef struct _terminal_list {
+struct _terminal_list {
 	struct list_head list;
 	unsigned int v;
-} _terminal_list_t;
+};
 
 
 /**
@@ -31,16 +31,17 @@ typedef struct _terminal_list {
  *
  * @value: Value to set in the vertex(v).
  * */
-_terminal_list_t *create_terminal(unsigned int value) {
-	_terminal_list_t *tl;
-	tl = malloc(sizeof(_terminal_list_t));
+static inline struct _terminal_list *create_terminal(unsigned int value)
+{
+	struct _terminal_list *tl;
+	tl = malloc(sizeof(*tl));
 	tl->v = value;
 	return tl;
 }
 
 
 /**
- * create_list_from_terminals - Create the linked list with all the given
+ * get_list_from_terminals - Create the linked list with all the given
  * terminals. The list is not ordered.
  * The global variable terminal_list_head is set with the linked list head.
  * Thus this method must be called before operating with the
@@ -49,16 +50,27 @@ _terminal_list_t *create_terminal(unsigned int value) {
  * @terminals: The terminals array in the stein struct.
  * @size: the size of the given array.
  * */
-void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
+static inline void get_list_from_terminals(unsigned int *terminals,
+		unsigned int size)
+{
 	unsigned int i;
+	struct _terminal_list *err_tl;
 
 	for(i = 0; i < size; i++) {
-		_terminal_list_t *_tl;
-		_tl = create_terminal(terminals[i]);
+		struct _terminal_list *_tl;
+
+		if(!(_tl = create_terminal(terminals[i])))
+			goto free_list;
+
 		list_add_tail(&_tl->list, &terminal_head);
 
 		pr_debug("Added terminal: %u.\n", terminals[i] + 1u);
 	}
+	return;
+free_list:
+	free_list_entry(&terminal_head, err_tl);
+	ERRNO = ENOMEM;
+	return;
 }
 
 /**
@@ -67,14 +79,16 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
  *
  * @stein: stein structure with the graph representation.
  * */
- struct list_head *retrieve_mst(stein_t *stein) {
+struct list_head *retrieve_mst(struct stein *stein)
+{
+	struct solution *err_s;
 	struct list_head *t_head, *ts_head, *tmp;
-	struct list_head *s_head = &solution_head;
 
 	pr_debug("Creating terminal list to retrieve the mst.\n", 0);
 
 	/* terminal_list_head is now set */
-	create_list_from_terminals(stein->terminals, stein->n_terminals);
+	get_list_from_terminals(stein->terminals, stein->n_terminals);
+	error_goto(fail_get_terminals);
 
 	/* ts_head contains all terminals not yet added in the mst
 	 * t_head contains the terminals already added.
@@ -94,9 +108,11 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
 	while(ts_head->next != ts_head) {
 		unsigned int v = UINT_MAX;
 		unsigned int min_cost =  UINT_MAX;
-		_terminal_list_t *terminal_out = NULL, *terminal_in = NULL;
-		_terminal_list_t *selected_v = NULL, *selected_u = NULL;
-		solution_t *s;
+		struct _terminal_list *terminal_out = NULL;
+		struct _terminal_list *terminal_in = NULL;
+		struct _terminal_list *selected_v = NULL;
+		struct _terminal_list *selected_u = NULL;
+		struct solution *s;
 
 
 		/**
@@ -132,9 +148,11 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
 
 
 			/* Add the selected edge to the solution */
-			s = alloc_solution();
-			s->edge->v[0] = selected_v->v;
-			s->edge->v[1] = selected_u->v;
+			if(!(s = alloc_solution()))
+				goto fail_alloc_sol;
+
+			s->edge[0] = selected_v->v;
+			s->edge[1] = selected_u->v;
 			list_add_tail(&s->list, &solution_head);
 
 			/* Remove the u vertex from the not selected list 
@@ -149,5 +167,10 @@ void create_list_from_terminals(unsigned int *terminals, unsigned int size) {
 		}
 	}
 
-	return s_head;
+	return (&solution_head);
+fail_alloc_sol:
+	free_list_entry(&solution_head, err_s);
+	ERRNO = ERRNO != 0 ? ERRNO : ENOMEM;
+fail_get_terminals:
+	return NULL;
 }

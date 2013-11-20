@@ -14,13 +14,13 @@
 
 /* Print functions with the corresponding level */
 #define pr_info(fmt, ...) \
-	pr_level(PRINT_INFO, __FILE__, __func__, fmt, ##__VA_ARGS__)
+	pr_level(PRINT_INFO, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define pr_debug(fmt, ...) \
-	pr_level(PRINT_DEBUG, __FILE__, __func__, fmt, ##__VA_ARGS__)
+	pr_level(PRINT_DEBUG, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define pr_warn(fmt, ...) \
-	pr_level(PRINT_WARN, __FILE__, __func__, fmt, ##__VA_ARGS__)
+	pr_level(PRINT_WARN, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define pr_error(fmt, ...) \
-	pr_level(PRINT_ERROR, __FILE__, __func__, fmt, ##__VA_ARGS__)
+	pr_level(PRINT_ERROR, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
 
 #ifndef PRINT_LEVEL
@@ -38,19 +38,19 @@ static inline char *get_level_prefix(level) {
 	char *level_prefix;
 	switch(level) {
 	case PRINT_INFO:
-		level_prefix = "[INFO] ";
+		level_prefix = "[INFO]";
 		break;
 	case PRINT_DEBUG:
-		level_prefix = "[DEBUG] ";
+		level_prefix = "[DEBUG]";
 		break;
 	case PRINT_WARN:
-		level_prefix = "[WARN] ";
+		level_prefix = "[WARN]";
 		break;
 	case PRINT_ERROR:
-		level_prefix = "[ERROR] ";
+		level_prefix = "[ERROR]";
 		break;
 	default:
-		level_prefix = " ";
+		level_prefix = "";
 		break;
 	}
 	return level_prefix;
@@ -64,27 +64,26 @@ static inline char *get_level_prefix(level) {
  * @func: function where the print was called.
  * @fmt: text to be formatted.
  * */
-static inline void pr_level(const int level, const char *file,
-		const char *func, const char *fmt, ...) {
-	char *str;
+static inline void pr_level(const int level, const char *file, const char *func,
+		const int line, const char *fmt, ...)
+{
+	char *str, *tmp_fmt;
 	va_list args;
 
 	if (level <= PRINT_LEVEL) {
 		char *level_prefix = get_level_prefix(level);
 
 		/* The new text is created considering the file, the
-		 * function and the inserted characters ([::]: ), which have the
-		 * size of 8. The final string is then printed.*/
+		 * function, the line and the inserted characters ([:::]: ),
+		 * which have the size of 9 - plus 15 characters for a int max
+		 * value. The final string is then printed.*/
 		va_start(args, fmt);
-		str = malloc(strlen(fmt) + strlen(file) + strlen(func)
-			       + strlen(level_prefix) + 8);
-		strcpy(str, "[");
-		strcat(str, file);
-		strcat(str, "::");
-		strcat(str, func);
-		strcat(str, "]: ");
-		strcat(str, level_prefix);
-		strcat(str, fmt);
+		str = malloc(strlen(fmt) + strlen(file) + strlen(func) +
+				strlen(level_prefix) + 18);
+
+		tmp_fmt = "[%s::%s:%d]: %s %s";
+		sprintf(str, tmp_fmt, file, func, line, level_prefix, fmt);
+
 		vprintf(str, args);
 		va_end(args);
 	}

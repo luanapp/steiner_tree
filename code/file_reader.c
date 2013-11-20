@@ -37,7 +37,8 @@ static char _terminal_prefix[] = "T";
  * track of the current line number.
  * */
 static int FILE_LINE = 0;
-static inline char *__fgets(char *buffer, int buff_size, FILE *file) {
+static inline char *__fgets(char *buffer, int buff_size, FILE *file)
+{
 	FILE_LINE++;
 	return fgets(buffer, buff_size, file);
 }
@@ -51,7 +52,8 @@ static inline char *__fgets(char *buffer, int buff_size, FILE *file) {
  * @endptr: Pointer to a pointer to the address of the first invalid character.
  * @base: Convertion base, e.g, decimal(10), hexadecimal(16), etc.
  * */
-unsigned int strtous(char *nptr, char **endptr, int base) {
+static unsigned int strtous(char *nptr, char **endptr, int base)
+{
 	unsigned long tmp_value;
 	unsigned int value = UINT_MAX;
 
@@ -74,7 +76,8 @@ unsigned int strtous(char *nptr, char **endptr, int base) {
  * @member_to_set: address to the field which will be set with the retrieved
  * value.
  */
-int set_field(FILE *file, char *field_name, unsigned int *member_to_set) {
+static int set_field(FILE *file, char *field_name, unsigned int *member_to_set)
+{
 
 	if(__fgets(buffer, BUFFER_SIZE, file) == NULL)
 		return EINVALID_FILE_FORMAT;
@@ -100,7 +103,8 @@ int set_field(FILE *file, char *field_name, unsigned int *member_to_set) {
  * @prefix: prefix to be checked as the first character in the line.
  * @stein: current stein structure.
  * */
-int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
+static int set_matrix_values(FILE *file, char *prefix, struct stein *stein)
+{
 	unsigned int i, j, w, x;
 
 	for(x = 0; x < stein->n_edges; x++) {
@@ -146,7 +150,8 @@ int set_matrix_values(FILE *file, char *prefix, stein_t *stein) {
  * @prefix: prefix to be checked as the first character in the line.
  * @stein: current stein structure.
  * */
-int set_terminals(FILE *file, char *prefix, stein_t *stein) {
+static int set_terminals(FILE *file, char *prefix, struct stein *stein)
+{
 	unsigned int i, v;
 
 	/* Allocate memory for the terminals */
@@ -178,9 +183,10 @@ int set_terminals(FILE *file, char *prefix, stein_t *stein) {
  * associated with the extracted data.
  * @filename: path to the file from where to retrieve the data.
  * */
-stein_t *get_stein_from_file(char *filename) {
+struct stein *get_stein_from_file(char *filename)
+{
 	FILE *file;
-	stein_t *stein_data;
+	struct stein *stein_data;
 	char *chk_eof;
 
 	if(!(file = fopen(filename, "r+"))) {

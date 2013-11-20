@@ -23,7 +23,7 @@
  * associated with the extracted data.
  * @filename: path to the file from where to retrieve the data.
  * */
-stein_t *get_stein_from_file(char *);
+struct stein *get_stein_from_file(char *filename);
 
 
 

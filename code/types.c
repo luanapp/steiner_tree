@@ -9,6 +9,7 @@
 
 #include "include/types.h"
 #include "include/print.h"
+#include "include/errno.h"
 
 /**
  * This is a common variable statically linked to a specific region,
@@ -16,9 +17,9 @@
  *
  * */
 #ifdef STEIN_MODULE
-stein_t __current
-	__attribute((__used__))
-	__attribute((__section__("___stein_module")));
+struct stein __current
+	__attribute__((__used__))
+	__attribute__((__section__("___stein_module")));
 #define THIS_STEIN (&__current)
 #endif
 
@@ -27,7 +28,8 @@ stein_t __current
  * alloc_adj_m - Allocate memory for the adjacency matrix acording to the values
  * of n_nodes and n_edges.
  * */
-void alloc_adj_m() {
+void alloc_adj_m()
+{
 	int i;
 
 	if(THIS_STEIN->n_nodes > 0 && THIS_STEIN->n_edges > 0) {
@@ -56,7 +58,8 @@ void alloc_adj_m() {
  * alloc_terminals - Allocate memory for the terminals vector acording 
  * to the value of n_terminals.
  * */
-void alloc_terminals() {
+void alloc_terminals()
+{
 	if(THIS_STEIN->n_terminals > 0) {
 		THIS_STEIN->terminals =
 			malloc(sizeof(*(THIS_STEIN->terminals)) *
@@ -69,7 +72,8 @@ void alloc_terminals() {
  * Return the current stein structure without requiring the -DSTEIN_MODULE flag
  * at compile time.
  *  */
-stein_t *get_stein() {
+struct stein *get_stein()
+{
 	return THIS_STEIN;
 }
 
@@ -95,11 +99,10 @@ void free_stein() {
 /**
  * alloc_solution - Allocate memory for the solution_t and its edge.
  * */
-solution_t *alloc_solution() {
-	solution_t *s;
-
-	s = malloc(sizeof(solution_t));
-	s->edge = malloc(sizeof(edge_t));
+struct solution *alloc_solution()
+{
+	struct solution *s;
+	s = malloc(sizeof(*s));
 	return s;
 }
 
@@ -107,11 +110,40 @@ solution_t *alloc_solution() {
 /**
  * free_solution - Deallocate the memory of the given solution_t and its edge.
  *
- * @solution: solution_t memory to free.
+ * @s: solution_t memory to free.
  * */
-void free_solution(solution_t *solution) {
-	free(solution->edge);
-	free(solution);
+void free_solution(struct solution *s)
+{
+	free(s->edge);
+	free(s);
 }
 
 
+static LIST_HEAD(_s_head);
+/**
+ * copy_solution - Use this function to create a copy of an entire solution
+ * list. It will walk down the solution list allocating a new memory chunk for
+ * every solution.
+ *
+ * @source: Solution to be copied.
+ * */
+struct list_head *copy_solution(struct list_head *source)
+{
+	struct solution *new_s, *tmp, *err_p;
+
+	list_for_each_entry(tmp, source, list) {
+		if(!(new_s = alloc_solution()))
+			goto free_list;
+
+		*new_s = *tmp;
+		memcpy(new_s->edge, tmp->edge, sizeof(tmp->edge));
+		new_s->list.prev = new_s->list.next = NULL;
+		list_add_tail(&new_s->list, &_s_head);
+	}
+	return (&_s_head);
+
+free_list:
+	free_list_entry(&_s_head, err_p);
+	ERRNO = ENOMEM;
+	return NULL;
+}

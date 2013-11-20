@@ -52,6 +52,18 @@ static inline void INIT_LIST_HEAD(struct list_head *list) {
 #define list_for_each(pos, head) \
 	for (pos = (head)->next; pos != (head); pos = pos->next)
 
+
+/**
+ * list_for_each_safe - iterate over a list safe against removal of list entry
+ * @pos:        the &struct list_head to use as a loop cursor.
+ * @n:          another &struct list_head to use as temporary storage
+ * @head:       the head for your list.
+ */
+#define list_for_each_safe(pos, n, head) \
+        for (pos = (head)->next, n = pos->next; pos != (head); \
+                pos = n, n = pos->next)
+
+
 /**
  * list_for_each_entry  -       iterate over list of given type
  * @pos:        the type * to use as a loop cursor.
@@ -85,7 +97,8 @@ static inline void INIT_LIST_HEAD(struct list_head *list) {
  */
 static inline void __list_add(struct list_head *_new,
                               struct list_head *prev,
-                              struct list_head *next) {
+                              struct list_head *next)
+{
         next->prev = _new;
         _new->next = next;
         _new->prev = prev;
@@ -100,7 +113,8 @@ static inline void __list_add(struct list_head *_new,
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-static inline void list_add_tail(struct list_head *_new, struct list_head *head) {
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
+{
         __list_add(_new, head->prev, head);
 }
 
@@ -112,7 +126,8 @@ static inline void list_add_tail(struct list_head *_new, struct list_head *head)
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_del(struct list_head * prev, struct list_head * next) {
+static inline void __list_del(struct list_head * prev, struct list_head * next)
+{
         next->prev = prev;
         prev->next = next;
 }
@@ -123,17 +138,20 @@ static inline void __list_del(struct list_head * prev, struct list_head * next) 
  * Note: list_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
-static inline void __list_del_entry(struct list_head *entry) {
+static inline void __list_del_entry(struct list_head *entry)
+{
         __list_del(entry->prev, entry->next);
 }
 
-static inline void list_del(struct list_head *entry) {
+static inline void list_del(struct list_head *entry)
+{
         __list_del(entry->prev, entry->next);
         entry->next = NULL;
         entry->prev = NULL;
 }
 
-static inline int list_size(struct list_head *head) {
+static inline int list_size(struct list_head *head)
+{
 	int size = 0;
 	struct list_head *tmp = NULL;
 	list_for_each(tmp, head) {
@@ -141,5 +159,24 @@ static inline int list_size(struct list_head *head) {
 	}
 	return size;
 }
+
+
+/**
+ * Iterate over the list and free each struct containing the list
+ * and remove it from the list.
+ *
+ * @head: the list head
+ * @pos: temporary pointer of type of the struct this is embedded in.
+ * */
+#define free_list_entry(head, pos) \
+	do { \
+		struct list_head *tmp, *n; \
+		list_for_each_safe(tmp, n, head) { \
+			pos = list_entry(tmp, typeof(*pos), list); \
+			list_del(tmp); \
+			free(pos); \
+		} \
+	} while(0)
+
 
 #endif /* _LIST_H_ */
