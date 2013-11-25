@@ -21,9 +21,13 @@ struct list_head *create_initial_population(struct stein *stein);
 /**
  * Mutations are based on a triangle inequality, i.e., when a mutation is
  * performed, it will add a non-terminal vertex to the solution as a replacement
- * to a direct edge between two terminals.
+ * to a direct edge between two terminals. The method, thus, adds two edges to the
+ * solution and removes one.
+ *
+ * @s: Solution which will mutate.
+ * @not_t: Number of edges that aren't terminals.
  * */
-void mutation(struct solution *population);
+void mutation(struct solution *s, struct stein *stein);
 
 
 /**
@@ -31,6 +35,6 @@ void mutation(struct solution *population);
  * given two solutions, part of the solution structure - the use or not of an
  * intermediate terminal - is exchanged, forming a new population.
  * */
-void crossover(struct solution *population);
+void crossover(struct solution *s1, struct solution *s2);
 
 #endif /* _POPULATION_H_ */

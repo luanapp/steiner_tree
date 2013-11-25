@@ -25,6 +25,10 @@ struct stein {
 	/* Number of stein graph terminals - retrieved directly from the initial file. */
 	unsigned int n_terminals;
 
+	/* Contains the number of nodes that aren't terminals
+	 * (n_nodes - n_terminals) */
+	unsigned int not_t;
+
 	/* Vector indicating which nodes are terminals */
 	unsigned int *terminals;
 
@@ -38,11 +42,12 @@ struct stein {
  * */
 struct solution {
 	struct list_head list;
+	int w;
 	unsigned int edge[2] __attribute__ ((packed));
 };
 
 struct population {
-	struct list_head solution;
+	struct list_head *solution;
 	struct list_head list;
 };
 
@@ -105,7 +110,26 @@ void free_solution(struct solution *s);
  * every solution.
  *
  * @source: Solution list head to be copied.
+ * @s_head: Solution list head for the new solution.
  * */
-struct list_head *copy_solution(struct list_head *source);
+void copy_solution(struct list_head *source, struct list_head *s_head);
+
+
+/**
+ * solution_has_v - Search for the vertex v in the solution.
+ *
+ * @h: solution list head.
+ * @v: vertex to search.
+ * */
+int solution_has_v(struct list_head *h, unsigned int v);
+
+
+/**
+ * update_solution_weight - Update the given solution list weight.
+ *
+ * @s_head: solution list head pointer.
+ * @w: new weight.
+ * */
+void update_solution_weight(struct list_head *s_head, unsigned int w);
 
 #endif /* _TYPES_H */

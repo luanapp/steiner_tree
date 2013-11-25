@@ -73,6 +73,7 @@ free_list:
 	return;
 }
 
+
 /**
  * retrieve_mst - Builds a maximum spanning tree with the vertexes in
  * stein->terminals, returning a pointer to the solution list head.
@@ -83,6 +84,7 @@ struct list_head *retrieve_mst(struct stein *stein)
 {
 	struct solution *err_s;
 	struct list_head *t_head, *ts_head, *tmp;
+	unsigned int w_total = 0u;
 
 	pr_debug("Creating terminal list to retrieve the mst.\n", 0);
 
@@ -164,8 +166,13 @@ struct list_head *retrieve_mst(struct stein *stein)
 			pr_debug("Selected edge:(%u, %u), w=%u.\n",
 					selected_v->v + 1u, selected_u->v + 1u,
 					min_cost);
+
+			/* Update the solution weight */
+			w_total += min_cost;
 		}
 	}
+
+	update_solution_weight(&solution_head, w_total);
 
 	return (&solution_head);
 fail_alloc_sol:

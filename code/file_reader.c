@@ -207,7 +207,7 @@ struct stein *get_stein_from_file(char *filename)
 		pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
 		return NULL;
 	}
-	pr_debug("Fields changed: n_nodes=%d; n_edges=%d.\n",
+	pr_debug("Fields changed: n_nodes=%u; n_edges=%u.\n",
 			stein_data->n_nodes, stein_data->n_edges);
 
 	/* Allocatte memory for the adjacency matrix and retrieve the nodes from
@@ -245,7 +245,9 @@ struct stein *get_stein_from_file(char *filename)
 		pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
 		return NULL;
 	}
-	pr_debug("Fields changed: n_terminals=%d.\n", stein_data->n_terminals);
+	stein_data->not_t = stein_data->n_edges - stein_data->n_terminals;
+	pr_debug("Fields changed: n_terminals=%u, not_t=%u.\n",
+			stein_data->n_terminals, stein_data->not_t);
 
 
 	/* The next stein_data->n_terminals lines contains the edges that are

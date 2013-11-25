@@ -29,7 +29,8 @@ struct list_head {
 #define LIST_HEAD(name) \
         struct list_head name = LIST_HEAD_INIT(name)
 
-static inline void INIT_LIST_HEAD(struct list_head *list) {
+static inline void INIT_LIST_HEAD(struct list_head *list)
+{
         list->next = list;
         list->prev = list;
 }
@@ -146,8 +147,8 @@ static inline void __list_del_entry(struct list_head *entry)
 static inline void list_del(struct list_head *entry)
 {
         __list_del(entry->prev, entry->next);
-        entry->next = NULL;
-        entry->prev = NULL;
+	/*entry->next = NULL;
+        entry->prev = NULL;*/
 }
 
 static inline int list_size(struct list_head *head)

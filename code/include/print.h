@@ -4,13 +4,14 @@
 #define _PRINT_H_
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
 #define PRINT_INFO  0
-#define PRINT_DEBUG 1
+#define PRINT_ERROR 1
 #define PRINT_WARN  2
-#define PRINT_ERROR 3
+#define PRINT_DEBUG 3
 
 /* Print functions with the corresponding level */
 #define pr_info(fmt, ...) \
@@ -24,7 +25,7 @@
 
 
 #ifndef PRINT_LEVEL
-#define PRINT_LEVEL PRINT_ERROR
+#define PRINT_LEVEL PRINT_DEBUG
 #endif
 
 
