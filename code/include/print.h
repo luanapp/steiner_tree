@@ -13,6 +13,13 @@
 #define PRINT_WARN  2
 #define PRINT_DEBUG 3
 
+/* *
+ * Disable warining for the variadic-macro - use of ##__VA_ARGS__
+ * This disable only for this piece of code.
+ * */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvariadic-macros"
+
 /* Print functions with the corresponding level */
 #define pr_info(fmt, ...) \
 	pr_level(PRINT_INFO, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
@@ -23,6 +30,7 @@
 #define pr_error(fmt, ...) \
 	pr_level(PRINT_ERROR, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
+#pragma GCC diagnostic pop
 
 #ifndef PRINT_LEVEL
 #define PRINT_LEVEL PRINT_DEBUG

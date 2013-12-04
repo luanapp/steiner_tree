@@ -18,8 +18,8 @@
  * */
 #ifdef STEIN_MODULE
 struct stein __current
-	__attribute__((__used__))
-	__attribute__((__section__("___stein_module")));
+	__attribute__((used))
+	__attribute__((section("___stein_module")));
 #define THIS_STEIN (&__current)
 #endif
 
