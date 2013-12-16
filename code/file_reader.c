@@ -109,11 +109,11 @@ static int set_matrix_values(FILE *file, char *prefix, struct stein *stein)
 
 	for(x = 0; x < stein->n_edges; x++) {
 		if(__fgets(buffer, BUFFER_SIZE, file) == NULL)
-			return EUNEXPECTED_FILE_FORMAT;
+			return EINVALID_FILE_FORMAT;
 
 		_str_token = strtok(buffer, _token);
 		if(strcmp(_str_token, prefix) != 0)
-			return EUNEXPECTED_FILE_FORMAT;
+			return EINVALID_FILE_FORMAT;
 
 		 /* The vertex indexes in the files are numbers from 1 to V 
 		  * (number of vertexes), therefore the indexes are decreased by 1.
@@ -159,11 +159,11 @@ static int set_terminals(FILE *file, char *prefix, struct stein *stein)
 
 	for(i = 0; i < stein->n_terminals; i++) {
 		if(__fgets(buffer, BUFFER_SIZE, file) == NULL)
-			return EUNEXPECTED_FILE_FORMAT;
+			return EINVALID_FILE_FORMAT;
 
 		_str_token = strtok(buffer, _token);
 		if(strcmp(_str_token, prefix) != 0)
-			return EUNEXPECTED_FILE_FORMAT;
+			return EINVALID_FILE_FORMAT;
 
 		_str_token = strtok(NULL, _token);
 		v = strtous(_str_token, NULL, 0);
@@ -203,9 +203,7 @@ struct stein *get_stein_from_file(char *filename)
 	 * */
 	if(set_field(file, _nodes, &(stein_data->n_nodes)) != 0 ||
 		set_field(file, _edges, &(stein_data->n_edges)) != 0) {
-		ERRNO = EINVALID_FILE_FORMAT;
-		pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
-		return NULL;
+		goto close_file;
 	}
 	pr_debug("Fields changed: n_nodes=%u; n_edges=%u.\n",
 			stein_data->n_nodes, stein_data->n_edges);
@@ -223,27 +221,22 @@ struct stein *get_stein_from_file(char *filename)
 	 * are the vertex of the edge and W is the edge weight.
 	 * */
 	if(set_matrix_values(file, _edge_prefix, stein_data) != 0) {
-		ERRNO = EUNEXPECTED_FILE_FORMAT;
-		pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
-		return NULL;
+		goto close_file;
 	}
 
 	/* There is an empty line afer getting the edges
 	 * */
 	chk_eof = __fgets(buffer, BUFFER_SIZE, file);
 	if(chk_eof == NULL || strcmp(chk_eof, "\n") != 0) {
-		ERRNO = EUNEXPECTED_FILE_FORMAT;
 		pr_error("\nWrong file format. Missing empty line at line %d. check_eof=%s.\n\n", FILE_LINE, chk_eof);
-		return NULL;
+		goto close_file;
 	}
 
 
 	/* Retrieve and check the number of terminals given in the file.
 	 * */
 	if(set_field(file, _terminals, &(stein_data->n_terminals)) != 0) {
-		ERRNO = EINVALID_FILE_FORMAT;
-		pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
-		return NULL;
+		goto close_file;
 	}
 	stein_data->not_t = stein_data->n_edges - stein_data->n_terminals;
 	pr_debug("Fields changed: n_terminals=%u, not_t=%u.\n",
@@ -254,11 +247,16 @@ struct stein *get_stein_from_file(char *filename)
 	 * terminals in the stein tree.
 	 * */
 	if(set_terminals(file, _terminal_prefix, stein_data) != 0) {
-		ERRNO = EUNEXPECTED_FILE_FORMAT;
-		pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
-		return NULL;
+		goto close_file;
 	}
 
+	fclose(file);
 	return stein_data;
+
+close_file:
+	ERRNO = EINVALID_FILE_FORMAT;
+	pr_error("\nWrong file format at line %d.\n\n", FILE_LINE);
+	fclose(file);
+	return NULL;
 }
 

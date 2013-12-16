@@ -1,0 +1,222 @@
+==14351== Memcheck, a memory error detector
+==14351== Copyright (C) 2002-2011, and GNU GPL'd, by Julian Seward et al.
+==14351== Using Valgrind-3.7.0 and LibVEX; rerun with -h for copyright info
+==14351== Command: ./stein ../instances/test1
+==14351== Parent PID: 3566
+==14351== 
+--14351-- 
+--14351-- Valgrind options:
+--14351--    --suppressions=/usr/lib/valgrind/debian-libc6-dbg.supp
+--14351--    -v
+--14351--    --leak-check=full
+--14351--    --show-reachable=yes
+--14351--    --error-limit=no
+--14351--    --track-origins=yes
+--14351--    --undef-value-errors=yes
+--14351--    --log-file=outout.log
+--14351--    --read-var-info=yes
+--14351--    --trace-children=yes
+--14351-- Contents of /proc/version:
+--14351--   Linux version 3.5.0-44-generic (buildd@lamiak) (gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5) ) #67~precise1-Ubuntu SMP Wed Nov 13 16:20:03 UTC 2013
+--14351-- Arch and hwcaps: X86, x86-sse1-sse2
+--14351-- Page sizes: currently 4096, max supported 4096
+--14351-- Valgrind library directory: /usr/lib/valgrind
+--14351-- Reading syms from /lib/i386-linux-gnu/ld-2.15.so (0x4000000)
+--14351--   Considering /lib/i386-linux-gnu/ld-2.15.so ..
+--14351--   .. CRC mismatch (computed 72502f98 wanted 90076620)
+--14351--   Considering /usr/lib/debug/lib/i386-linux-gnu/ld-2.15.so ..
+--14351--   .. CRC is valid
+--14351-- Reading syms from /home/auro/repo/steiner_tree/code/stein (0x8048000)
+--14351-- Reading syms from /usr/lib/valgrind/memcheck-x86-linux (0x38000000)
+--14351--   Considering /usr/lib/valgrind/memcheck-x86-linux ..
+--14351--   .. CRC mismatch (computed 2a2bce46 wanted 9ac1affc)
+--14351--    object doesn't have a symbol table
+--14351--    object doesn't have a dynamic symbol table
+--14351-- Reading suppressions file: /usr/lib/valgrind/debian-libc6-dbg.supp
+--14351-- Reading suppressions file: /usr/lib/valgrind/default.supp
+==14351== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-14351-by-auro-on-???
+==14351== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-14351-by-auro-on-???
+==14351== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-14351-by-auro-on-???
+==14351== 
+==14351== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==14351== don't want to do, unless you know exactly what you're doing,
+==14351== or are doing some strange experiment):
+==14351==   /usr/lib/valgrind/../../bin/vgdb --pid=14351 ...command...
+==14351== 
+==14351== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==14351==   /path/to/gdb ./stein
+==14351== and then give GDB the following command
+==14351==   target remote | /usr/lib/valgrind/../../bin/vgdb --pid=14351
+==14351== --pid is optional if only one valgrind process is running
+==14351== 
+--14351-- REDIR: 0x40182e0 (strlen) redirected to 0x38056b04 (???)
+--14351-- REDIR: 0x4018060 (index) redirected to 0x38056adf (???)
+--14351-- Reading syms from /usr/lib/valgrind/vgpreload_core-x86-linux.so (0x4025000)
+--14351--   Considering /usr/lib/valgrind/vgpreload_core-x86-linux.so ..
+--14351--   .. CRC mismatch (computed 33f4d79f wanted ac058c14)
+--14351--    object doesn't have a symbol table
+--14351-- Reading syms from /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so (0x4028000)
+--14351--   Considering /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so ..
+--14351--   .. CRC mismatch (computed 8c6a0645 wanted b38afa17)
+--14351--    object doesn't have a symbol table
+--14351-- Reading syms from /lib/i386-linux-gnu/libpthread-2.15.so (0x404e000)
+--14351--   Considering /lib/i386-linux-gnu/libpthread-2.15.so ..
+--14351--   .. CRC mismatch (computed e3e38d22 wanted 86ccdb6e)
+--14351--   Considering /usr/lib/debug/lib/i386-linux-gnu/libpthread-2.15.so ..
+--14351--   .. CRC is valid
+--14351-- Reading syms from /lib/i386-linux-gnu/libc-2.15.so (0x4069000)
+--14351--   Considering /lib/i386-linux-gnu/libc-2.15.so ..
+--14351--   .. CRC mismatch (computed 17ac398b wanted 58914b22)
+--14351--   Considering /usr/lib/debug/lib/i386-linux-gnu/libc-2.15.so ..
+--14351--   .. CRC is valid
+--14351-- warning: addVar: unknown size (p)
+--14351-- warning: addVar: unknown size (info)
+--14351-- warning: addVar: unknown size (status)
+--14351-- warning: addVar: unknown size (resdata)
+--14351-- REDIR: 0x40e70b0 (strnlen) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--14351-- REDIR: 0x40e8600 (strncasecmp) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--14351-- REDIR: 0x4100860 (strstr) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--14351-- REDIR: 0x41004a0 (__GI_strstr) redirected to 0x402f030 (strstr)
+--14351-- REDIR: 0x40e7250 (__GI_strrchr) redirected to 0x402c1b0 (__GI_strrchr)
+--14351-- REDIR: 0x40e2d80 (malloc) redirected to 0x402be00 (malloc)
+--14351-- REDIR: 0x40e9920 (strchrnul) redirected to 0x402ebe0 (strchrnul)
+--14351-- REDIR: 0x40e3260 (free) redirected to 0x402b000 (free)
+--14351-- REDIR: 0x40e6800 (strcmp) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--14351-- REDIR: 0x41a8970 (__strcmp_ssse3) redirected to 0x402d280 (strcmp)
+==14351== Invalid read of size 4
+==14351==    at 0x8048BCD: solution_has_v (types.c:163)
+==14351==    by 0x804A237: get_new_v (population.c:130)
+==14351==    by 0x804A493: mutation (population.c:197)
+==14351==    by 0x804A1B0: create_initial_population (population.c:107)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351==  Address 0x42ca708 is 0 bytes after a block of size 16 alloc'd
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x8049E42: alloc_population (population.c:23)
+==14351==    by 0x8049EF5: get_population_from_mst (population.c:53)
+==14351==    by 0x804A049: create_initial_population (population.c:88)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== Invalid write of size 4
+==14351==    at 0x804A6BB: __list_del (list.h:132)
+==14351==    by 0x804A6E4: list_del (list.h:149)
+==14351==    by 0x804A7B9: main (main.c:37)
+==14351==  Address 0x11e7 is not stack'd, malloc'd or (recently) free'd
+==14351== 
+==14351== 
+==14351== Process terminating with default action of signal 11 (SIGSEGV)
+==14351==  Access not within mapped region at address 0x11E7
+==14351==    at 0x804A6BB: __list_del (list.h:132)
+==14351==    by 0x804A6E4: list_del (list.h:149)
+==14351==    by 0x804A7B9: main (main.c:37)
+==14351==  If you believe this happened as a result of a stack
+==14351==  overflow in your program's main thread (unlikely but
+==14351==  possible), you can try to increase the size of the
+==14351==  main thread stack using the --main-stacksize= flag.
+==14351==  The main thread stack size used in this run was 8388608.
+==14351== 
+==14351== HEAP SUMMARY:
+==14351==     in use at exit: 43,180 bytes in 245 blocks
+==14351==   total heap usage: 5,628 allocs, 5,383 frees, 498,452 bytes allocated
+==14351== 
+==14351== Searching for pointers to 245 not-freed blocks
+==14351== Checked 112,168 bytes
+==14351== 
+==14351== 40 bytes in 1 blocks are still reachable in loss record 1 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x804895A: alloc_terminals (types.c:65)
+==14351==    by 0x80490DE: set_terminals (file_reader.c:158)
+==14351==    by 0x8049483: get_stein_from_file (file_reader.c:249)
+==14351==    by 0x804A765: main (main.c:31)
+==14351== 
+==14351== 120 bytes in 10 blocks are still reachable in loss record 2 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x8049726: create_terminal (mst.c:37)
+==14351==    by 0x8049759: get_list_from_terminals (mst.c:62)
+==14351==    by 0x8049876: retrieve_mst (mst.c:92)
+==14351==    by 0x8049E62: get_population_from_mst (population.c:42)
+==14351==    by 0x804A049: create_initial_population (population.c:88)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== 160 bytes in 10 blocks are possibly lost in loss record 3 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x8049E42: alloc_population (population.c:23)
+==14351==    by 0x8049EF5: get_population_from_mst (population.c:53)
+==14351==    by 0x804A049: create_initial_population (population.c:88)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== 180 bytes in 9 blocks are still reachable in loss record 4 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x80489DF: alloc_solution (types.c:105)
+==14351==    by 0x8049A86: retrieve_mst (mst.c:153)
+==14351==    by 0x8049E62: get_population_from_mst (population.c:42)
+==14351==    by 0x804A049: create_initial_population (population.c:88)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== 400 bytes in 1 blocks are still reachable in loss record 5 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x80488DA: alloc_adj_m (types.c:38)
+==14351==    by 0x804931C: get_stein_from_file (file_reader.c:215)
+==14351==    by 0x804A765: main (main.c:31)
+==14351== 
+==14351== 480 bytes in 24 blocks are possibly lost in loss record 6 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x80489DF: alloc_solution (types.c:105)
+==14351==    by 0x804A24B: add_new_v (population.c:147)
+==14351==    by 0x804A4E2: mutation (population.c:200)
+==14351==    by 0x804A1B0: create_initial_population (population.c:107)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== 480 bytes in 24 blocks are possibly lost in loss record 7 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x80489DF: alloc_solution (types.c:105)
+==14351==    by 0x804A259: add_new_v (population.c:147)
+==14351==    by 0x804A4E2: mutation (population.c:200)
+==14351==    by 0x804A1B0: create_initial_population (population.c:107)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== 1,320 bytes in 66 blocks are possibly lost in loss record 8 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x80489DF: alloc_solution (types.c:105)
+==14351==    by 0x8048A19: copy_solution (types.c:134)
+==14351==    by 0x8049F33: get_population_from_mst (population.c:59)
+==14351==    by 0x804A049: create_initial_population (population.c:88)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== 40,000 bytes in 100 blocks are still reachable in loss record 9 of 9
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x8048906: alloc_adj_m (types.c:44)
+==14351==    by 0x804931C: get_stein_from_file (file_reader.c:215)
+==14351==    by 0x804A765: main (main.c:31)
+==14351== 
+==14351== LEAK SUMMARY:
+==14351==    definitely lost: 0 bytes in 0 blocks
+==14351==    indirectly lost: 0 bytes in 0 blocks
+==14351==      possibly lost: 2,440 bytes in 124 blocks
+==14351==    still reachable: 40,740 bytes in 121 blocks
+==14351==         suppressed: 0 bytes in 0 blocks
+==14351== 
+==14351== ERROR SUMMARY: 29 errors from 6 contexts (suppressed: 0 from 0)
+==14351== 
+==14351== 1 errors in context 1 of 6:
+==14351== Invalid write of size 4
+==14351==    at 0x804A6BB: __list_del (list.h:132)
+==14351==    by 0x804A6E4: list_del (list.h:149)
+==14351==    by 0x804A7B9: main (main.c:37)
+==14351==  Address 0x11e7 is not stack'd, malloc'd or (recently) free'd
+==14351== 
+==14351== 
+==14351== 24 errors in context 2 of 6:
+==14351== Invalid read of size 4
+==14351==    at 0x8048BCD: solution_has_v (types.c:163)
+==14351==    by 0x804A237: get_new_v (population.c:130)
+==14351==    by 0x804A493: mutation (population.c:197)
+==14351==    by 0x804A1B0: create_initial_population (population.c:107)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351==  Address 0x42ca708 is 0 bytes after a block of size 16 alloc'd
+==14351==    at 0x402BE68: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==14351==    by 0x8049E42: alloc_population (population.c:23)
+==14351==    by 0x8049EF5: get_population_from_mst (population.c:53)
+==14351==    by 0x804A049: create_initial_population (population.c:88)
+==14351==    by 0x804A77C: main (main.c:34)
+==14351== 
+==14351== ERROR SUMMARY: 29 errors from 6 contexts (suppressed: 0 from 0)

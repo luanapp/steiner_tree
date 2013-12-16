@@ -134,10 +134,10 @@ void copy_solution(struct list_head *source, struct list_head *s_head)
 		if(!(new_s = alloc_solution()))
 			goto free_list;
 
-		*new_s = *tmp;
-		memcpy(new_s->edge, tmp->edge, sizeof(tmp->edge));
+		new_s->edge[0] = tmp->edge[0];
+		new_s->edge[1] = tmp->edge[1];
 		new_s->list.prev = new_s->list.next = NULL;
-		list_add_tail(&new_s->list, s_head);
+		list_add_tail(&(new_s->list), s_head);
 		pr_debug("Copying edge (%u,%u) at %p.\n", new_s->edge[0] + 1u,
 				new_s->edge[1] + 1u, *new_s);
 	}

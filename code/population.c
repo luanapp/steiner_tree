@@ -36,8 +36,6 @@ static struct list_head *get_population_from_mst(struct stein *stein)
 {
 	int i;
 	struct list_head *common_ancestor = NULL;
-	struct list_head *s_head = NULL;
-	struct list_head *p_head = NULL;
 	struct solution *s, *err_s;
 
 
@@ -49,22 +47,22 @@ static struct list_head *get_population_from_mst(struct stein *stein)
 	pr_debug("Common ancestor with %d edges was created at %p.\n",
 			list_size(common_ancestor), *s);
 
-	p_head = &_pop_head;
 	for(i = 0; i < POP_SIZE; i++) {
-		struct population *p;
+		struct population *p = NULL;
 
 		if(!(p = alloc_population()))
 			goto fail_pop_create;
 
-		s_head = malloc(sizeof(*s_head));
-		INIT_LIST_HEAD(s_head);
-		copy_solution(common_ancestor, s_head);
-		p->solution = s_head;
-		list_add_tail(&p->list, p_head);
-		pr_debug("Solution copied at %p.\n", *s_head);
+		INIT_LIST_HEAD(&p->solution);
+		p->list.next = NULL;
+		p->list.prev = NULL;
+		copy_solution(common_ancestor, &p->solution);
+
+		list_add_tail(&p->list, &_pop_head);
+		pr_debug("Solution copied at %p.\n", &(p->solution));
 
 	}
-	return p_head;
+	return &_pop_head;
 
 fail_pop_create:
 	pr_error("Could not allocate population. p head=%p.\n\n", &_pop_head);
@@ -96,8 +94,8 @@ struct list_head *create_initial_population(struct stein *stein)
 	list_for_each_entry_safe(p, np, p_head, list) {
 
 		pr_debug("Current population at %p. p->solution at %p\n",
-				*p, *p->solution);
-		list_for_each_entry_safe(s, n, p->solution, list) {
+				*p, &(p->solution));
+		list_for_each_entry_safe(s, n, &p->solution, list) {
 
 			/**
 			 * TODO: create a way to put the solution weight into

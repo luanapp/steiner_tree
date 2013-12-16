@@ -43,11 +43,11 @@ struct stein {
 struct solution {
 	struct list_head list;
 	int w;
-	unsigned int edge[2] __attribute__ ((packed));
+	unsigned int edge[2]; /*__attribute__ ((packed));*/
 };
 
 struct population {
-	struct list_head *solution;
+	struct list_head solution;
 	struct list_head list;
 };
 

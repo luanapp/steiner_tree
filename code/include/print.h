@@ -95,6 +95,8 @@ static inline void pr_level(const int level, const char *file, const char *func,
 
 		vprintf(str, args);
 		va_end(args);
+
+		free(str);
 	}
 }
 

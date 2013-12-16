@@ -171,10 +171,10 @@ static inline int list_size(struct list_head *head)
  * */
 #define free_list_entry(head, pos) \
 	do { \
-		struct list_head *tmp, *n; \
-		list_for_each_safe(tmp, n, head) { \
-			pos = list_entry(tmp, typeof(*pos), list); \
-			list_del(tmp); \
+		struct list_head *__tmp_pos, *n; \
+		list_for_each_safe(__tmp_pos, n, head) { \
+			pos = list_entry(__tmp_pos, typeof(*pos), list); \
+			list_del(__tmp_pos); \
 			free(pos); \
 		} \
 	} while(0)
