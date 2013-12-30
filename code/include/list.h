@@ -27,8 +27,7 @@ struct list_head {
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 
 #define LIST_HEAD(name) \
-        struct list_head name = LIST_HEAD_INIT(name)
-
+        struct list_head name __attribute__((used)) = LIST_HEAD_INIT(name)
 static inline void INIT_LIST_HEAD(struct list_head *list)
 {
         list->next = list;
@@ -168,12 +167,13 @@ static inline int list_size(struct list_head *head)
  *
  * @head: the list head
  * @pos: temporary pointer of type of the struct this is embedded in.
+ * @member: name of the list struct within the struct
  * */
-#define free_list_entry(head, pos) \
+#define free_list_entry(head, pos, member) \
 	do { \
 		struct list_head *__tmp_pos, *n; \
 		list_for_each_safe(__tmp_pos, n, head) { \
-			pos = list_entry(__tmp_pos, typeof(*pos), list); \
+			pos = list_entry(__tmp_pos, typeof(*pos), member); \
 			list_del(__tmp_pos); \
 			free(pos); \
 		} \

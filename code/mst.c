@@ -68,7 +68,7 @@ static inline void get_list_from_terminals(unsigned int *terminals,
 	}
 	return;
 free_list:
-	free_list_entry(&terminal_head, err_tl);
+	free_list_entry(&terminal_head, err_tl, list);
 	ERRNO = ENOMEM;
 	return;
 }
@@ -174,9 +174,12 @@ struct list_head *retrieve_mst(struct stein *stein)
 
 	update_solution_weight(&solution_head, w_total);
 
+	free_list_entry(&terminal_head, err_s, list);
+	free_list_entry(&terminal_solution_head, err_s, list);
+
 	return (&solution_head);
 fail_alloc_sol:
-	free_list_entry(&solution_head, err_s);
+	free_list_entry(&solution_head, err_s, list);
 	ERRNO = ERRNO != 0 ? ERRNO : ENOMEM;
 fail_get_terminals:
 	return NULL;

@@ -17,15 +17,7 @@
 #endif
 
 
-static struct population *alloc_population()
-{
-	struct population *p = NULL;
-	p = malloc(sizeof(*p));
-	return p;
-}
 
-
-static LIST_HEAD(_pop_head);
 /**
  * get_population_from_mst - Retrieve the MST from terminals and replicate it
  * POP_SIZE times. The population list head is returned.
@@ -35,39 +27,48 @@ static LIST_HEAD(_pop_head);
 static struct list_head *get_population_from_mst(struct stein *stein)
 {
 	int i;
-	struct list_head *common_ancestor = NULL;
-	struct solution *s, *err_s;
+	struct list_head *common_ancestor = NULL, *_pop_head = NULL;
+	struct solution *tmp_s, *err_s;
 
 
-	if(!(common_ancestor = retrieve_mst(stein)))
+	if(!(common_ancestor = retrieve_mst(stein))) {
+		pr_error("Could not allocate population. common_ancestor=0x%p.\n\n", *common_ancestor);
 		goto fail_mst_create;
+	}
 
 
-	s = list_entry(common_ancestor, struct solution, list);
-	pr_debug("Common ancestor with %d edges was created at %p.\n",
-			list_size(common_ancestor), *s);
+	pr_debug("Common ancestor with %d edges was created at 0x%p.\n",
+			list_size(common_ancestor), *common_ancestor);
 
+	_pop_head = malloc(sizeof(*_pop_head));
+	INIT_LIST_HEAD(_pop_head);
 	for(i = 0; i < POP_SIZE; i++) {
 		struct population *p = NULL;
 
-		if(!(p = alloc_population()))
+		if(!(p = alloc_population())) {
+			pr_error("Could not allocate population. p head=0x%p.\n\n", *_pop_head);
+			ERRNO = ERRNO != 0 ? ERRNO : ENOMEM;
 			goto fail_pop_create;
+		}
 
 		INIT_LIST_HEAD(&p->solution);
 		p->list.next = NULL;
 		p->list.prev = NULL;
 		copy_solution(common_ancestor, &p->solution);
 
-		list_add_tail(&p->list, &_pop_head);
-		pr_debug("Solution copied at %p.\n", &(p->solution));
+		list_add_tail(&p->list, _pop_head);
+		pr_debug("Solution copied at 0x%p.\n", &(p->solution));
 
 	}
-	return &_pop_head;
+
+	/* Free the memory allocated for the common ancestor */
+	free_list_entry(common_ancestor, tmp_s, list);
+
+	return _pop_head;
 
 fail_pop_create:
-	pr_error("Could not allocate population. p head=%p.\n\n", &_pop_head);
-	free_list_entry(&_pop_head, err_s);
-	ERRNO = ERRNO != 0 ? ERRNO : ENOMEM;
+	free_list_entry(_pop_head, err_s, list);
+	free(_pop_head);
 fail_mst_create:
 	return NULL;
 }
@@ -83,17 +84,19 @@ struct list_head *create_initial_population(struct stein *stein)
 {
 	struct list_head *p_head;
 	struct solution *s, *n;
-	struct population *p, *np;
+	struct population *p;
 
-	if(!(p_head = get_population_from_mst(stein)))
+	if(!(p_head = get_population_from_mst(stein))) {
+		pr_error("Initial population creation has failed. p_head=0x%p\n\n", *p_head);
 		goto fail_create_pop;
+	}
 
-	pr_debug("Population with size %d created at %p.\n", list_size(p_head),
-			*p_head);
+	pr_debug("Population with size %d created at 0x%p.\n", list_size(p_head)
+			, *p_head);
 
-	list_for_each_entry_safe(p, np, p_head, list) {
+	list_for_each_entry(p, p_head, list) {
 
-		pr_debug("Current population at %p. p->solution at %p\n",
+		pr_debug("Current population at 0x%p. p->solution at 0x%p\n",
 				*p, &(p->solution));
 		list_for_each_entry_safe(s, n, &p->solution, list) {
 
@@ -104,7 +107,7 @@ struct list_head *create_initial_population(struct stein *stein)
 			if(range_rand(0, RAND_MAX) % 4 == 0) {
 				pr_debug("Mutating (%u, %u).\n", s->edge[0] + 1u
 						, s->edge[1] + 1u);
-				mutation(s, stein);
+				mutation(s, stein, &p->solution);
 			}
 		}
 	}
@@ -120,14 +123,14 @@ fail_create_pop:
  * get_new_v - Select a vertex that is not yet in the solution.
  *
  * @stein: stein struct
- * @s: solution to check
+ * @s_head: solution to check
  * */
-static unsigned int get_new_v(struct stein *stein, struct solution *s)
+static unsigned int get_new_v(struct stein *stein, struct list_head *s_head)
 {
 	unsigned int v;
 	do {
 		v = range_rand(0, stein->n_nodes - 1);
-	} while (solution_has_v(&s->list, v));
+	} while (solution_has_v(s_head, v));
 
 
 	return v;
@@ -139,7 +142,8 @@ static unsigned int get_new_v(struct stein *stein, struct solution *s)
  * The new edges are create using the vertex "v", connecting it to the solution
  * "s" edge vertexes. This, therefore, removes the current edge from solution.
  * */
-static void add_new_v(struct stein *stein, struct solution *s, unsigned int v)
+static void add_new_v(struct stein *stein, struct solution *s, unsigned int v,
+		struct list_head *s_head)
 {
 	struct solution *s1, *s2;
 	unsigned int new_w, new_w1, new_w2, old_w;
@@ -165,16 +169,16 @@ static void add_new_v(struct stein *stein, struct solution *s, unsigned int v)
 	new_w = s->w - old_w + new_w1 + new_w2;
 
 	/* Update the solution list */
-	list_add_tail(&s1->list, &s->list);
-	list_add_tail(&s2->list, &s->list);
+	list_add_tail(&s1->list, s_head);
+	list_add_tail(&s2->list, s_head);
 	list_del(&s->list);
 
 	/* Update the solution weight */
-	update_solution_weight(&s1->list, new_w);
+	update_solution_weight(s_head, new_w);
 
 	pr_debug("Solution updated: weight=%u, old weight=%u, s=%u, w1=%u, w2=%u.\n",
 			new_w, s->w, old_w, new_w1, new_w2);
-	free_solution(s);
+	free(s);
 }
 
 /**
@@ -184,9 +188,10 @@ static void add_new_v(struct stein *stein, struct solution *s, unsigned int v)
  * solution and removes one.
  *
  * @s: Solution which will mutate.
- * @not_t: Number of edges that aren't terminals.
+ * @stein: Stein struct.
+ * @s_head: Solution list head.
  * */
-void mutation(struct solution *s, struct stein *stein)
+void mutation(struct solution *s, struct stein *stein, struct list_head *s_head)
 {
 	int v;
 
@@ -194,10 +199,10 @@ void mutation(struct solution *s, struct stein *stein)
 			s->edge[1] + 1u);
 
 	/* TODO: Check how much the function bellow affects the performance */
-	v = get_new_v(stein, s);
+	v = get_new_v(stein, s_head);
 	pr_debug("Selected vertex: %d\n", v);
 
-	add_new_v(stein, s, v);
+	add_new_v(stein, s, v, s_head);
 }
 
 

@@ -8,18 +8,19 @@
 #include <limits.h>
 
 #include "include/types.h"
+#include "include/list.h"
 #include "include/print.h"
 #include "include/errno.h"
 
 /**
  * This is a common variable statically linked to a specific region,
- * defined as ___stein_scope.
+ * defined as __stein_section.
  *
  * */
 #ifdef STEIN_MODULE
 struct stein __current
 	__attribute__((used))
-	__attribute__((section("___stein_module")));
+	__attribute__((section("__stein_section")));
 #define THIS_STEIN (&__current)
 #endif
 
@@ -108,15 +109,35 @@ struct solution *alloc_solution()
 
 
 /**
- * free_solution - Deallocate the memory of the given solution_t and its edge.
- *
- * @s: solution_t memory to free.
+ * alloc_population - Allocate memory for a population.
  * */
-void free_solution(struct solution *s)
+struct population *alloc_population()
 {
-	free(s);
+	struct population *p = NULL;
+	p = malloc(sizeof(*p));
+	return p;
 }
 
+
+/**
+ * free_population - iterates over the population list and free its solution and
+ * the population struct itself.
+ *
+ * @head: population list head.
+ * */
+void free_population_list(struct list_head *head)
+{
+	struct list_head *p_list, *tmp;
+	struct solution *s;
+
+	list_for_each_safe(p_list, tmp, head) {
+		struct population *p;
+		p = list_entry(p_list, struct population, list);
+		free_list_entry(&p->solution, s, list);
+		free(p);
+	}
+
+}
 
 /**
  * copy_solution - Use this function to create a copy of an entire solution
@@ -128,15 +149,19 @@ void free_solution(struct solution *s)
  * */
 void copy_solution(struct list_head *source, struct list_head *s_head)
 {
-	struct solution *new_s, *tmp, *err_p;
+	struct solution *tmp = NULL, *err_p = NULL;
 
 	list_for_each_entry(tmp, source, list) {
+		struct solution *new_s = NULL;
+
 		if(!(new_s = alloc_solution()))
 			goto free_list;
 
 		new_s->edge[0] = tmp->edge[0];
 		new_s->edge[1] = tmp->edge[1];
-		new_s->list.prev = new_s->list.next = NULL;
+		new_s->w = tmp->w;
+		new_s->list.prev = NULL;
+		new_s->list.next = NULL;
 		list_add_tail(&(new_s->list), s_head);
 		pr_debug("Copying edge (%u,%u) at %p.\n", new_s->edge[0] + 1u,
 				new_s->edge[1] + 1u, *new_s);
@@ -144,7 +169,8 @@ void copy_solution(struct list_head *source, struct list_head *s_head)
 	return;
 free_list:
 	pr_error("Solution was not copied. Head at %p.\n\n", *s_head);
-	free_list_entry(s_head, err_p);
+	free_list_entry(s_head, err_p, list);
+	free(s_head);
 	ERRNO = ENOMEM;
 	return;
 }

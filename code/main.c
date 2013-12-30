@@ -13,11 +13,8 @@ int main(int argc, char *argv[])
 {
 	char *filename;
 	struct stein *stein_data;
-	struct list_head *s = NULL;
+	struct list_head *p_head = NULL;
 
-	/**
-	 * Initialize the random numbers seed
-	 * */
 	srand(time_seed());
 
 	if(!(filename = argv[1])) {
@@ -30,10 +27,17 @@ int main(int argc, char *argv[])
 	if(!(stein_data = get_stein_from_file(filename)))
 		goto reset_stein;
 
-	if (!(s = create_initial_population(stein_data)))
-		goto initial_population_error;
+	if (!(p_head = create_initial_population(stein_data)))
+		goto free_population;
 
-initial_population_error:
+	pr_debug("End of history. Freeing allocated resources. p_head=%p\n",
+			*p_head);
+	free_population_list(p_head);
+	free_stein();
+	return 0;
+
+free_population:
+	free_population_list(p_head);
 	free_stein();
 reset_stein:
 missing_file:

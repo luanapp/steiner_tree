@@ -97,11 +97,18 @@ struct solution *alloc_solution();
 
 
 /**
- * free_solution - Deallocate the memory of the given solution_t and its edge.
- *
- * @s: solution_t memory to free.
+ * alloc_population - Allocate memory for a population.
  * */
-void free_solution(struct solution *s);
+struct population *alloc_population();
+
+
+/**
+ * free_population - iterates over the population list and free its solution and
+ * the population struct itself.
+ *
+ * @head: population list head.
+ * */
+void free_population_list(struct list_head *head);
 
 
 /**

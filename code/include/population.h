@@ -25,9 +25,10 @@ struct list_head *create_initial_population(struct stein *stein);
  * solution and removes one.
  *
  * @s: Solution which will mutate.
- * @not_t: Number of edges that aren't terminals.
+ * @stein: Stein struct.
+ * @s_head: Solution list head.
  * */
-void mutation(struct solution *s, struct stein *stein);
+void mutation(struct solution *s, struct stein *stein, struct list_head *s_head);
 
 
 /**

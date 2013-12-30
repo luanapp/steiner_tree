@@ -196,7 +196,7 @@ struct stein *get_stein_from_file(char *filename)
 	}
 
 	stein_data = get_stein();
-	pr_debug("Getting stein_data at %p...\n", stein_data);
+	pr_debug("Getting stein_data at 0x%p...\n", stein_data);
 
 	/* Retrieve and check if the nodes and edge totals
 	 * were retrieved correctly.
@@ -213,7 +213,7 @@ struct stein *get_stein_from_file(char *filename)
 	 * edges.
 	 * */
 	alloc_adj_m();
-	pr_debug("Adjacency matrix created at=%p\n", stein_data->adj_m);
+	pr_debug("Adjacency matrix created at=0x%p\n", stein_data->adj_m);
 
 
 	/* The next stein_data->n_edges lines describes all the graph edges in
