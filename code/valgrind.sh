@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # vim: set autoindent smartindent tabstop=2 shiftwidth=2 expandtab filetype=sh:
 
 function vgrun

@@ -33,11 +33,11 @@ int main(int argc, char *argv[])
 	pr_debug("End of history. Freeing allocated resources. p_head=%p\n",
 			*p_head);
 	free_population_list(p_head);
+	free(p_head);
 	free_stein();
 	return 0;
 
 free_population:
-	free_population_list(p_head);
 	free_stein();
 reset_stein:
 missing_file:
